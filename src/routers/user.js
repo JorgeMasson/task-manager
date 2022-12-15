@@ -1,11 +1,8 @@
 import express from "express";
 import User from "../models/user.js";
+import auth from "../middleware/auth.js";
 
 const router = new express.Router();
-
-router.get("/test", (req, res) => {
-  res.send("This is from my other Route");
-});
 
 router.post("/users", async (req, res) => {
   const user = new User(req.body);
@@ -19,15 +16,6 @@ router.post("/users", async (req, res) => {
   }
 });
 
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (error) {
-    res.status(500).send();
-  }
-});
-
 router.post("/users/login", async (req, res) => {
   try {
     const user = await User.findByCredentials(
@@ -38,6 +26,15 @@ router.post("/users/login", async (req, res) => {
     res.send({ user, token });
   } catch (error) {
     res.status(400).send(error);
+  }
+});
+
+router.get("/users", auth, async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.send(users);
+  } catch (error) {
+    res.status(500).send();
   }
 });
 
